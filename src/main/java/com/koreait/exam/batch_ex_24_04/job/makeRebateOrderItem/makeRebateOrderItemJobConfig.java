@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Sort;
 
 import java.util.Arrays;
@@ -66,6 +67,7 @@ public class makeRebateOrderItemJobConfig {
 
     @StepScope
     @Bean
+    @Primary
     public RepositoryItemReader<OrderItem> orderItemReader(
             @Value("#{jobParameters['fromId']}") long fromId,
             @Value("#{jobParameters['toId']}") long toId
@@ -82,12 +84,14 @@ public class makeRebateOrderItemJobConfig {
 
     @StepScope
     @Bean
+    @Primary
     public ItemProcessor<OrderItem, RebateOrderItem> orderItemToRebateOrderItemProcessor() {
         return orderItem -> new RebateOrderItem(orderItem);
     }
 
     @StepScope
     @Bean
+    @Primary
     public ItemWriter<RebateOrderItem> rebateOrderItemWriter() {
         return items -> items.forEach(item -> {
             RebateOrderItem oldRebateOrderItem = rebateOrderItemRepository.findByOrderItemId(item.getOrderItem().getId()).orElse(null);
