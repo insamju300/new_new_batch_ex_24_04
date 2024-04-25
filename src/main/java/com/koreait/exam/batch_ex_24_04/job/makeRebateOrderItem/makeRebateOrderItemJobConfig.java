@@ -25,7 +25,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Sort;
 
 import java.util.Arrays;
@@ -46,53 +45,46 @@ public class makeRebateOrderItemJobConfig {
         initData.run();
 
         return jobBuilderFactory.get("makeRebateOrderItemJob")
-                .start(makeRebateOrderItemStep1)
-                .build();
+            .start(makeRebateOrderItemStep1)
+            .build();
     }
 
     @Bean
     @JobScope
     public Step makeRebateOrderItemStep1(
-            ItemReader orderItemReader,
-            ItemProcessor orderItemToRebateOrderItemProcessor,
-            ItemWriter rebateOrderItemWriter
+        ItemReader orderItemReader,
+        ItemProcessor orderItemToRebateOrderItemProcessor,
+        ItemWriter rebateOrderItemWriter
     ) {
         return stepBuilderFactory.get("makeRebateOrderItemStep1")
-                .<OrderItem, RebateOrderItem>chunk(100)
-                .reader(orderItemReader)
-                .processor(orderItemToRebateOrderItemProcessor)
-                .writer(rebateOrderItemWriter)
-                .build();
+            .<OrderItem, RebateOrderItem>chunk(100)
+            .reader(orderItemReader)
+            .processor(orderItemToRebateOrderItemProcessor)
+            .writer(rebateOrderItemWriter)
+            .build();
     }
 
     @StepScope
     @Bean
-    @Primary
-    public RepositoryItemReader<OrderItem> orderItemReader(
-            @Value("#{jobParameters['fromId']}") long fromId,
-            @Value("#{jobParameters['toId']}") long toId
-    ) {
+    public RepositoryItemReader<OrderItem> orderItemReader() {
         return new RepositoryItemReaderBuilder<OrderItem>()
-                .name("orderItemReader")
-                .repository(orderItemRepository)
-                .methodName("findAllByIdBetween")
-                .pageSize(100)
-                .arguments(Arrays.asList(fromId, toId))
-                .sorts(Collections.singletonMap("id", Sort.Direction.ASC))
-                .build();
+            .name("orderItemReader")
+            .repository(orderItemRepository)
+            .methodName("findAllByIsPaid")
+            .pageSize(100)
+            .arguments(Arrays.asList(true))
+            .sorts(Collections.singletonMap("id", Sort.Direction.ASC))
+            .build();
     }
 
     @StepScope
     @Bean
-    @Primary
     public ItemProcessor<OrderItem, RebateOrderItem> orderItemToRebateOrderItemProcessor() {
-        System.out.println("이거 되고있는거 맞아?");
         return orderItem -> new RebateOrderItem(orderItem);
     }
 
     @StepScope
     @Bean
-    @Primary
     public ItemWriter<RebateOrderItem> rebateOrderItemWriter() {
         return items -> items.forEach(item -> {
             RebateOrderItem oldRebateOrderItem = rebateOrderItemRepository.findByOrderItemId(item.getOrderItem().getId()).orElse(null);
@@ -100,6 +92,7 @@ public class makeRebateOrderItemJobConfig {
             if (oldRebateOrderItem != null) {
                 rebateOrderItemRepository.delete(oldRebateOrderItem);
             }
+
 
             rebateOrderItemRepository.save(item);
         });
