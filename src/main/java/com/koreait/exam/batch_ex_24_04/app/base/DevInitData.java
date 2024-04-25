@@ -68,16 +68,16 @@ public class DevInitData {
             log.info("member1 rest cash: " + restCash);
 
             Product product1 = productService.create("셔츠 1", 68000, 45000, "평화-1-14",
-                    Arrays.asList(new ProductOption("RED", "95"),
-                            new ProductOption("RED", "100"),
-                            new ProductOption("BLUE", "95"),
-                            new ProductOption("BLUE", "100")));
+                Arrays.asList(new ProductOption("RED", "95"),
+                    new ProductOption("RED", "100"),
+                    new ProductOption("BLUE", "95"),
+                    new ProductOption("BLUE", "100")));
 
             Product product2 = productService.create("반팔 1", 72000, 55000, "평화-1-14",
-                    Arrays.asList(new ProductOption("BLACK", "95"),
-                            new ProductOption("BLACK", "100"),
-                            new ProductOption("WHITE", "95"),
-                            new ProductOption("WHITE", "100")));
+                Arrays.asList(new ProductOption("BLACK", "95"),
+                    new ProductOption("BLACK", "100"),
+                    new ProductOption("WHITE", "95"),
+                    new ProductOption("WHITE", "100")));
 
             ProductOption product1Option__RED_95 = product1.getProductOptions().get(0);
             ProductOption product1Option__RED_100 = product1.getProductOptions().get(1);
@@ -117,14 +117,30 @@ public class DevInitData {
 
             orderService.refund(order2);
 
-            Order order3 = helper.order(member2,Arrays.asList(product1Option__RED_95,product1Option__RED_100,product2Option__Black_95,product2Option__White_95));
+            Order order3 = helper.order(
+                member2,Arrays.asList(
+                    product1Option__RED_95,
+                    product1Option__RED_100,
+                    product2Option__Black_95,
+                    product2Option__White_95
+                ));
 
             orderService.payByRestCashOnly(order3);
 
-            Order order4 = helper.order(member1,Arrays.asList(product1Option__RED_95,product2Option__White_95));
+            Order order4 = helper.order(
+                member1,Arrays.asList(
+                    product1Option__RED_95,
+                    product2Option__White_95
+                ));
 
             orderService.payByRestCashOnly(order4);
+
+            Order order5 = helper.order(
+                member1,Arrays.asList(
+                    product1Option__RED_95,
+                    product2Option__White_95
+                ));
+
         };
     }
 }
-
