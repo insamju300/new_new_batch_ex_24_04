@@ -86,6 +86,7 @@ public class makeRebateOrderItemJobConfig {
     @Bean
     @Primary
     public ItemProcessor<OrderItem, RebateOrderItem> orderItemToRebateOrderItemProcessor() {
+        System.out.println("이거 되고있는거 맞아?");
         return orderItem -> new RebateOrderItem(orderItem);
     }
 
